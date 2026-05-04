@@ -1,0 +1,3 @@
+([('juegoQuince',
+   '/Users/javiercruzhernandez/Desktop/Inicio/Escuela/Octavo/Sistemas_expertos/Sistemas-Expertos/Programas_Juegos/Cruz_Tristan-Lopez_Said_SE08-P02/dist/juegoQuince',
+   'EXECUTABLE')],)
