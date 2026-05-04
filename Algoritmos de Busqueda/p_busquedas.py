@@ -1,8 +1,19 @@
-# Lista de integrantes del equipo en estricto orden alfabetico por apellido:
+# =============================================================================
+
+# Integrantes del equipo:
 # 1. Cruz Hernandez Tristan Javier
-# 2. López Garcia Said Eduardo
+# 2. Lopez Garcia Said Eduardo
+#
+# =============================================================================
 import heapq
 import csv 
+import sys
+import os
+
+def ruta_recurso(rel_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, rel_path)
+    return os.path.join(os.path.abspath("."), rel_path)
 
 # La clase BusquedaGrafo agrupa la definicion del mapa de nodos y todos los algoritmos de busqueda
 class BusquedaGrafo:
@@ -49,6 +60,8 @@ class BusquedaGrafo:
     # La variable ruta_archivo almacena el nombre o ubicacion de la tabla de datos
     def cargar_heuristica_desde_csv(self, ruta_archivo):
         tabla = {}
+        ruta_archivo = ruta_recurso(ruta_archivo)
+
         try:
             with open(ruta_archivo, mode='r', encoding='utf-8-sig') as archivo:
                 lector = csv.reader(archivo)
