@@ -1,6 +1,7 @@
 """
-Servicio orquestador: aplica el motor difuso a toda la base de vinos
-y produce un ranking de recomendaciones.
+Servicio orquestador (Motor de Búsqueda).
+Aplica el motor de inferencia difusa a la base de hechos (KnowledgeBase)
+y produce un ranking ponderado de recomendaciones.
 """
 from typing import Dict, List
 
@@ -15,27 +16,32 @@ class RecommendationService:
         self.kb = kb or KnowledgeBase()
         self.engine = FuzzyEngine(self.kb.reglas)
 
-    # ───── Pipeline principal ─────
+    # ───── Pipeline principal de Evaluación ─────
     def recomendar(self, perfil_platillo: Dict, contexto: Dict) -> List[Dict]:
-        """Ejecuta el motor difuso y devuelve los vinos ordenados por score."""
+        """
+        Ejecuta el Forward Chaining (Encadenamiento hacia adelante).
+        Evalúa toda la base de vinos contra el perfil ideal y retorna el arreglo ordenado.
+        """
+        # 1. Deduce el perfil químico que necesita el vino para este platillo
         ideal = self.engine.perfil_ideal(perfil_platillo)
         pesos = self.kb.pesos()
         resultados = []
 
         for vino in self.kb.vinos:
-            # 1) Filtro estricto por tipo
+            # Filtro booleano estricto (Poda del espacio de búsqueda)
             tipo_pref = (contexto.get("tipo_pref") or "").strip()
             if tipo_pref and vino.tipo.lower() != tipo_pref.lower():
                 continue
 
-            # 2) Pertenencia difusa al presupuesto
+            # Inferencia difusa al presupuesto
             mu_precio = self.engine.pertenencia_presupuesto(
                 vino.precio, contexto["presupuesto"]
             )
+            # Descrate temprano si el precio está totalmente fueran del rango
             if mu_precio == 0.0:
                 continue
 
-            # 3) Bono por maridaje literal con el nombre del platillo
+            # Bono por maridaje literal con el nombre del platillo
             nombre = (contexto.get("nombre_platillo") or "").lower()
             bono_maridaje = (
                 pesos.get("maridaje_directo", 0.25)
@@ -43,14 +49,14 @@ class RecommendationService:
                 else 0.0
             )
 
-            # 4) Afinidad sensorial
+            # Afinidad sensorial
             mu_sensorial = self.engine.afinidad_sensorial(vino, ideal)
 
-            # 5) Modificadores contextuales
+            # Bonos de contexto (Ocasión y Clima)
             bono_ocasion = self._bono_ocasion(vino, contexto.get("ocasion"))
             bono_clima = self._bono_clima(vino, contexto.get("clima"))
 
-            # Score combinado
+            # Score combinado, suma ponderada de todas las variables
             score = (
                 mu_sensorial * pesos.get("sensorial", 0.5)
                 + mu_precio * pesos.get("presupuesto", 0.2)
@@ -58,8 +64,11 @@ class RecommendationService:
                 + bono_ocasion
                 + bono_clima
             )
+
+            # Normalización del score final al 100%
             score = min(score * 100, 100.0)
 
+            # Empaquetado del resultado con desglose de variables para la explicabilidad
             resultados.append(
                 {
                     "vino": vino.to_dict(),
@@ -72,11 +81,12 @@ class RecommendationService:
                     "perfil_ideal": ideal,
                 }
             )
-
+        # Ordenamiento descendente basado en el score final
         return sorted(resultados, key=lambda x: x["score"], reverse=True)
 
     # ───── Bonificaciones contextuales ─────
     def _bono_ocasion(self, vino, ocasion: str) -> float:
+        """Asigna un puntaje extra basado en si el precio del vino se ajusta a la formalidad del evento."""
         if not ocasion:
             return 0.0
         for o in self.kb.ocasiones():
@@ -91,6 +101,7 @@ class RecommendationService:
         return 0.0
 
     def _bono_clima(self, vino, clima: str) -> float:
+        """Asigna un puntaje extra si la temperatura de servicio del vino empata con el clima exterior."""
         if not clima:
             return 0.0
         for c in self.kb.climas():

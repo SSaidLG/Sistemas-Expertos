@@ -155,7 +155,7 @@ def _decision_help():
                 className="decision-stats",
                 children=[
                     html.Div(className="stat", children=[
-                        html.Span("16", className="stat-num"),
+                        html.Span("54", className="stat-num"),
                         html.Span("vinos catalogados", className="stat-label"),
                     ]),
                     html.Div(className="stat", children=[
