@@ -10,216 +10,219 @@ Standalone — no requiere MySQL ni dependencias externas.
 """
 
 import os
+import streamlit as st
 
 # ─────────────────────────────────────────────────────────
 # BASE DE CONOCIMIENTO (Marcos / Frames)
 # Cada entrada es un frame con slots: nombre, bodega, tipo,
 # uva, popularidad, precio_aprox, perfil, maridaje_target
 # ─────────────────────────────────────────────────────────
-BASE_CONOCIMIENTO = [
-    {"nombre": "L.A. Cetto Cabernet", "bodega": "L.A. Cetto", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 95, "precio_aprox": 210, "perfil": "tánico y robusto", "maridaje_target": "Carne asada, Pasta, Mole, Carnitas, Pizza, Hamburguesa"},
-    {"nombre": "L.A. Cetto Petite Sirah", "bodega": "L.A. Cetto", "tipo": "Tinto", "uva": "Petite Sirah", "popularidad": 90, "precio_aprox": 190, "perfil": "intenso y especiado", "maridaje_target": "Birria, Carnitas, Carne asada, Tacos al pastor, Chorizo"},
-    {"nombre": "Casa Madero 3V", "bodega": "Casa Madero", "tipo": "Tinto", "uva": "Blend (C-M-S)", "popularidad": 98, "precio_aprox": 550, "perfil": "elegante y equilibrado", "maridaje_target": "Mole, Pato, Cordero, Cortes finos, Quesos maduros"},
-    {"nombre": "Riunite Lambrusco", "bodega": "Riunite", "tipo": "Tinto Dulce", "uva": "Lambrusco", "popularidad": 99, "precio_aprox": 195, "perfil": "dulce y efervescente", "maridaje_target": "Pizza, Sushi, Pasta, Postres, Picante"},
-    {"nombre": "Monte Xanic V. Kristel", "bodega": "Monte Xanic", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 94, "precio_aprox": 480, "perfil": "cítrico y fresco", "maridaje_target": "Mariscos, Ensaladas, Ceviche, Pescado blanco"},
-    {"nombre": "Casillero del Diablo", "bodega": "Concha y Toro", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 96, "precio_aprox": 260, "perfil": "frutos rojos y vainilla", "maridaje_target": "Hamburguesas, Quesos, Pizza, Carne asada"},
-    {"nombre": "Santo Tomás Barbera", "bodega": "Santo Tomás", "tipo": "Tinto", "uva": "Barbera", "popularidad": 88, "precio_aprox": 490, "perfil": "ácido y frutal", "maridaje_target": "Pastas, Lasagna, Ensalada, Pizza"},
-    {"nombre": "Balero Tinto", "bodega": "Baja Wine", "tipo": "Tinto", "uva": "Blend", "popularidad": 91, "precio_aprox": 460, "perfil": "equilibrado y amigable", "maridaje_target": "Tacos de guisado, Carnitas, Tacos al pastor"},
-    {"nombre": "Las Nubes Selección T.", "bodega": "Las Nubes", "tipo": "Tinto", "uva": "Blend", "popularidad": 85, "precio_aprox": 720, "perfil": "robusto y complejo", "maridaje_target": "Cordero, Borrego, Cortes de carne, Estofados"},
-    {"nombre": "Mariatinto", "bodega": "Mariatinto", "tipo": "Tinto", "uva": "Blend", "popularidad": 89, "precio_aprox": 950, "perfil": "sofisticado y sedoso", "maridaje_target": "Alta cocina mexicana, Mole negro, Pato"},
-    {"nombre": "Sala Vivé Brut", "bodega": "Freixenet Qro.", "tipo": "Espumoso", "uva": "Macabeo", "popularidad": 90, "precio_aprox": 360, "perfil": "burbuja fina y seco", "maridaje_target": "Chiles en nogada, Postres, Mariscos, Sushi"},
-    {"nombre": "Don Leo Shiraz", "bodega": "Don Leo", "tipo": "Tinto", "uva": "Shiraz", "popularidad": 84, "precio_aprox": 680, "perfil": "especiado y potente", "maridaje_target": "Carne de caza, Estofados, Barbacoa"},
-    {"nombre": "Corona del Valle Rosé", "bodega": "Corona del V.", "tipo": "Rosado", "uva": "Grenache", "popularidad": 82, "precio_aprox": 610, "perfil": "frutal y elegante", "maridaje_target": "Sushi, Paella, Mariscos, Ensaladas"},
-    {"nombre": "Laberinto Mezcla T.", "bodega": "Cava Quintanilla", "tipo": "Tinto", "uva": "Blend", "popularidad": 80, "precio_aprox": 580, "perfil": "estructurado y mineral", "maridaje_target": "Enchiladas potosinas, Carne asada, Quesos maduros"},
-    {"nombre": "Sangre de Toro", "bodega": "Torres", "tipo": "Tinto", "uva": "Garnacha-Cariñena", "popularidad": 92, "precio_aprox": 290, "perfil": "cálido y especiado", "maridaje_target": "Tapas, Embutidos, Carnitas, Cordero"},
-    {"nombre": "Yellow Tail Shiraz", "bodega": "Casella Family", "tipo": "Tinto", "uva": "Shiraz", "popularidad": 87, "precio_aprox": 240, "perfil": "suave y frutal", "maridaje_target": "Barbacoa, Pizza, Comida rápida, Alitas"},
-    {"nombre": "Adobe Guadalupe Kerubiel", "bodega": "Adobe Guad.", "tipo": "Tinto", "uva": "Blend G-S-M", "popularidad": 83, "precio_aprox": 1200, "perfil": "complejo y tánico", "maridaje_target": "Cortes premium, Venado, Estofados intensos"},
-    {"nombre": "Pedro Domecq XA", "bodega": "Domecq", "tipo": "Tinto", "uva": "Cabernet-Grenache", "popularidad": 93, "precio_aprox": 185, "perfil": "ligero y directo", "maridaje_target": "Tacos de canasta, Comida diaria, Quesadillas"},
-    {"nombre": "Ramón Bilbao Crianza", "bodega": "R. Bilbao", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 95, "precio_aprox": 460, "perfil": "clásico y equilibrado", "maridaje_target": "Jamón Ibérico, Quesos maduros, Cordero, Paella"},
-    {"nombre": "19 Crimes Cali Red", "bodega": "19 Crimes", "tipo": "Tinto", "uva": "Blend", "popularidad": 91, "precio_aprox": 380, "perfil": "denso y dulce", "maridaje_target": "Alitas, Costillas BBQ, Pizza, Hamburguesas"},
-    {"nombre": "Meinklang Prosa", "bodega": "Meinklang", "tipo": "Rosado E.", "uva": "Pinot Noir", "popularidad": 78, "precio_aprox": 550, "perfil": "natural y refrescante", "maridaje_target": "Brunch, Ensaladas frutales, Sushi, Mariscos"},
-    {"nombre": "Roganto Nebbiolo", "bodega": "Roganto", "tipo": "Tinto", "uva": "Nebbiolo", "popularidad": 86, "precio_aprox": 1100, "perfil": "potente y seco", "maridaje_target": "Queso de cabra, Carnes rojas, Guisados"},
-    {"nombre": "Santo Domingo Nebbiolo", "bodega": "Santo Domingo", "tipo": "Tinto", "uva": "Nebbiolo", "popularidad": 84, "precio_aprox": 640, "perfil": "intenso y persistente", "maridaje_target": "Cortes, Guisados intensos, Venado"},
-    {"nombre": "Gran Ricardo", "bodega": "Monte Xanic", "tipo": "Tinto", "uva": "Blend Bordelés", "popularidad": 81, "precio_aprox": 1850, "perfil": "ícono y elegante", "maridaje_target": "Cena de gala, Cortes Wagyu, Quesos premium"},
-    {"nombre": "Vinaltura Rosado", "bodega": "Vinaltura", "tipo": "Rosado", "uva": "Syrah", "popularidad": 85, "precio_aprox": 420, "perfil": "vibrante y floral", "maridaje_target": "Cochinita pibil, Pozole, Sushi, Chiles en nogada"},
-    {"nombre": "Tres Raíces Blanco", "bodega": "Tres Raíces", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 83, "precio_aprox": 510, "perfil": "mineral y fresco", "maridaje_target": "Pescado a la talla, Ceviche, Mariscos, Ensaladas"},
-    {"nombre": "Cava Maciel Venus", "bodega": "Cava Maciel", "tipo": "Tinto", "uva": "Petite Sirah", "popularidad": 79, "precio_aprox": 690, "perfil": "profundo y oscuro", "maridaje_target": "Birria, Cortes grasos, Carne asada"},
-    {"nombre": "El Cielo Selene", "bodega": "El Cielo", "tipo": "Rosado", "uva": "Grenache-Syrah", "popularidad": 90, "precio_aprox": 590, "perfil": "delicado y frutal", "maridaje_target": "Chiles en nogada, Sushi, Mariscos, Ensalada"},
-    {"nombre": "Faustino VII", "bodega": "Faustino", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 92, "precio_aprox": 320, "perfil": "sedoso y frutal", "maridaje_target": "Pollo asado, Tortilla española, Tapas"},
-    {"nombre": "Barefoot Merlot", "bodega": "Barefoot", "tipo": "Tinto", "uva": "Merlot", "popularidad": 94, "precio_aprox": 215, "perfil": "suave y versátil", "maridaje_target": "Botanas, Pasta suave, Pollo, Quesos"},
-    {"nombre": "Kim Crawford", "bodega": "Constellation", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 88, "precio_aprox": 750, "perfil": "tropical y ácido", "maridaje_target": "Comida asiática, Ensalada César, Mariscos"},
-    {"nombre": "Espumante Puerta del Lobo", "bodega": "P. del Lobo", "tipo": "Espumoso", "uva": "Brut Nature", "popularidad": 82, "precio_aprox": 780, "perfil": "elegante y seco", "maridaje_target": "Ostras, Mariscos, Celebración, Sushi"},
-    {"nombre": "Rutini Malbec", "bodega": "Rutini", "tipo": "Tinto", "uva": "Malbec", "popularidad": 87, "precio_aprox": 850, "perfil": "estructurado y distinguido", "maridaje_target": "Bife de chorizo, Empanadas, Carne asada"},
-    {"nombre": "Luigi Bosca", "bodega": "L. Bosca", "tipo": "Tinto", "uva": "Malbec", "popularidad": 91, "precio_aprox": 620, "perfil": "clásico malbec argentino", "maridaje_target": "Carne asada, Choripán, Cortes, Quesos"},
-    {"nombre": "Alamos Malbec", "bodega": "Alamos", "tipo": "Tinto", "uva": "Malbec", "popularidad": 93, "precio_aprox": 340, "perfil": "frutal y jugoso", "maridaje_target": "Hamburguesas, Tacos de bistec, Pasta"},
-    {"nombre": "J.P. Chenet", "bodega": "J.P. Chenet", "tipo": "Tinto", "uva": "Cabernet-Syrah", "popularidad": 95, "precio_aprox": 235, "perfil": "fácil de beber", "maridaje_target": "Quesos suaves, Pizza, Pollo, Picnic"},
-    {"nombre": "Sutter Home White Zin", "bodega": "Sutter Home", "tipo": "Rosado", "uva": "Zinfandel", "popularidad": 96, "precio_aprox": 220, "perfil": "dulce y ligero", "maridaje_target": "Comida picante, Postres, Fruta, Social"},
-    {"nombre": "Chateau Camou Flor de L.", "bodega": "Ch. Camou", "tipo": "Blanco", "uva": "Chardonnay", "popularidad": 81, "precio_aprox": 520, "perfil": "untuoso y floral", "maridaje_target": "Pescado al horno, Risotto, Pollo con crema"},
-    {"nombre": "Único Luis Miguel", "bodega": "Ventisquero", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 85, "precio_aprox": 795, "perfil": "intenso y apasionado", "maridaje_target": "Cena romántica, Cortes, Regalos"},
-    {"nombre": "Megacero", "bodega": "Encinillas", "tipo": "Tinto", "uva": "Blend", "popularidad": 88, "precio_aprox": 1150, "perfil": "poderoso y persistente", "maridaje_target": "Rib eye, Cortes añejados, Carne roja"},
-    {"nombre": "Piedra Negra Alta Colecc.", "bodega": "Lurton", "tipo": "Tinto", "uva": "Malbec", "popularidad": 86, "precio_aprox": 430, "perfil": "fresco y frutal", "maridaje_target": "Tacos de tuétano, Carne asada, Empanadas"},
-    {"nombre": "Evolución Chardonnay", "bodega": "Casa Madero", "tipo": "Blanco", "uva": "Chardonnay", "popularidad": 89, "precio_aprox": 415, "perfil": "fresco con madera", "maridaje_target": "Pollo con crema, Salmón, Pasta blanca"},
-    {"nombre": "Mogor Badán", "bodega": "Mogor Badán", "tipo": "Tinto", "uva": "Blend Burdeos", "popularidad": 80, "precio_aprox": 1250, "perfil": "tradicional y complejo", "maridaje_target": "Gastronomía de autor, Cortes, Cordero"},
-    {"nombre": "Bruma Plan B Tinto", "bodega": "Bruma", "tipo": "Tinto", "uva": "Blend", "popularidad": 84, "precio_aprox": 590, "perfil": "moderno y directo", "maridaje_target": "Tacos al pastor, Pizza, Hamburguesas, Pasta"},
-    {"nombre": "Henri Lurton Chenin", "bodega": "Bodegas HL", "tipo": "Blanco", "uva": "Chenin Blanc", "popularidad": 82, "precio_aprox": 670, "perfil": "aromático y vivaz", "maridaje_target": "Comida tailandesa, Mariscos, Ceviche"},
-    {"nombre": "Solar Fortún Syrah", "bodega": "Solar Fortún", "tipo": "Tinto", "uva": "Syrah", "popularidad": 81, "precio_aprox": 745, "perfil": "especiado y ahumado", "maridaje_target": "Carne de cerdo, Adobos, Barbacoa"},
-    {"nombre": "Cuatro Soles", "bodega": "Valle Redondo", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 97, "precio_aprox": 125, "perfil": "ligero y afrutado", "maridaje_target": "Tacos de canasta, Quesadillas, Uso diario"},
-    {"nombre": "Reservado Concha y Toro", "bodega": "Concha y Toro", "tipo": "Tinto", "uva": "Merlot", "popularidad": 98, "precio_aprox": 165, "perfil": "suave y confiable", "maridaje_target": "Comida casera, Pasta con tomate, Pollo"},
-    {"nombre": "Veuve Clicquot", "bodega": "LVMH", "tipo": "Espumoso", "uva": "Champagne", "popularidad": 89, "precio_aprox": 1950, "perfil": "lujo y estructura", "maridaje_target": "Mariscos, Canapés, Celebración, Ostras"},
-    {"nombre": "Moët & Chandon", "bodega": "LVMH", "tipo": "Espumoso", "uva": "Champagne", "popularidad": 92, "precio_aprox": 1780, "perfil": "clásico y brillante", "maridaje_target": "Celebraciones, Fresas, Postres, Sushi"},
-    {"nombre": "Prosecco Zonin", "bodega": "Zonin", "tipo": "Espumoso", "uva": "Glera", "popularidad": 94, "precio_aprox": 390, "perfil": "fresco y amigable", "maridaje_target": "Aperitivo, Brunch, Mimosas, Ensaladas"},
-    {"nombre": "Apothic Red", "bodega": "Apothic", "tipo": "Tinto", "uva": "Blend", "popularidad": 91, "precio_aprox": 450, "perfil": "intenso y chocolate", "maridaje_target": "Costillas, Comida especiada, Pizza, Hamburguesa"},
-    {"nombre": "Menade Nosso", "bodega": "Menade", "tipo": "Blanco", "uva": "Verdejo", "popularidad": 77, "precio_aprox": 680, "perfil": "ecológico y puro", "maridaje_target": "Comida vegana, Ensaladas, Pescado al vapor"},
-    {"nombre": "Flor de Pingus", "bodega": "Dominio de Pingus", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 75, "precio_aprox": 2900, "perfil": "exclusivo y potente", "maridaje_target": "Coleccionista, Cortes premium, Cena especial"},
-    {"nombre": "Pruno", "bodega": "Finca Villacreces", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 88, "precio_aprox": 655, "perfil": "fruta negra y roble", "maridaje_target": "Carne asada, Guisados, Embutidos"},
-    {"nombre": "Montes Alpha", "bodega": "Montes", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 86, "precio_aprox": 695, "perfil": "robusto y clásico", "maridaje_target": "Cordero, Cortes rojos, Estofados"},
-    {"nombre": "Errázuriz Max", "bodega": "Errázuriz", "tipo": "Tinto", "uva": "Carmenere", "popularidad": 83, "precio_aprox": 585, "perfil": "terroso y especiado", "maridaje_target": "Comida chilena, Empanadas, Carne de cerdo"},
-    {"nombre": "Kaiken Ultra", "bodega": "Kaiken", "tipo": "Tinto", "uva": "Malbec", "popularidad": 85, "precio_aprox": 595, "perfil": "elegante y floral", "maridaje_target": "Parrillada argentina, Cortes, Quesos"},
-    {"nombre": "Beringer Founders Est.", "bodega": "Beringer", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 84, "precio_aprox": 485, "perfil": "clásico americano", "maridaje_target": "Estofado de res, Quesos, Carne asada"},
-    {"nombre": "Oyster Bay", "bodega": "Oyster Bay", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 82, "precio_aprox": 650, "perfil": "refrescante y tropical", "maridaje_target": "Pescados blancos, Espárragos, Ensaladas"},
-    {"nombre": "Whispering Angel", "bodega": "Ch. d'Esclans", "tipo": "Rosado", "uva": "Blend Provenza", "popularidad": 87, "precio_aprox": 1100, "perfil": "fresco y seco", "maridaje_target": "Terrazas, Comida mediterránea, Mariscos"}
+
+BASE_VINOS = [
+    {"nombre": "L.A. Cetto Cabernet", "bodega": "L.A. Cetto", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 95, "precio_aprox": 210, "perfil": "tánico y robusto", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "L.A. Cetto Petite Sirah", "bodega": "L.A. Cetto", "tipo": "Tinto", "uva": "Petite Sirah", "popularidad": 90, "precio_aprox": 190, "perfil": "intenso y especiado", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Casa Madero 3V", "bodega": "Casa Madero", "tipo": "Tinto", "uva": "Blend (C-M-S)", "popularidad": 98, "precio_aprox": 550, "perfil": "elegante y equilibrado", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Riunite Lambrusco", "bodega": "Riunite", "tipo": "Tinto Dulce", "uva": "Lambrusco", "popularidad": 99, "precio_aprox": 195, "perfil": "dulce y efervescente", "cuerpo": "ligero", "acidez": "media", "taninos": "bajos", "dulzor": "dulce"},
+    {"nombre": "Monte Xanic V. Kristel", "bodega": "Monte Xanic", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 94, "precio_aprox": 480, "perfil": "cítrico y fresco", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Casillero del Diablo", "bodega": "Concha y Toro", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 96, "precio_aprox": 260, "perfil": "frutos rojos y vainilla", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Santo Tomás Barbera", "bodega": "Santo Tomás", "tipo": "Tinto", "uva": "Barbera", "popularidad": 88, "precio_aprox": 490, "perfil": "ácido y frutal", "cuerpo": "medio", "acidez": "alta", "taninos": "bajos", "dulzor": "seco"},
+    {"nombre": "Balero Tinto", "bodega": "Baja Wine", "tipo": "Tinto", "uva": "Blend", "popularidad": 91, "precio_aprox": 460, "perfil": "equilibrado y amigable", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Las Nubes Selección T.", "bodega": "Las Nubes", "tipo": "Tinto", "uva": "Blend", "popularidad": 85, "precio_aprox": 720, "perfil": "robusto y complejo", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Mariatinto", "bodega": "Mariatinto", "tipo": "Tinto", "uva": "Blend", "popularidad": 89, "precio_aprox": 950, "perfil": "sofisticado y sedoso", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Sala Vivé Brut", "bodega": "Freixenet Qro.", "tipo": "Espumoso", "uva": "Macabeo", "popularidad": 90, "precio_aprox": 360, "perfil": "burbuja fina y seco", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Don Leo Shiraz", "bodega": "Don Leo", "tipo": "Tinto", "uva": "Shiraz", "popularidad": 84, "precio_aprox": 680, "perfil": "especiado y potente", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Corona del Valle Rosé", "bodega": "Corona del V.", "tipo": "Rosado", "uva": "Grenache", "popularidad": 82, "precio_aprox": 610, "perfil": "frutal y elegante", "cuerpo": "ligero", "acidez": "media", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Laberinto Mezcla T.", "bodega": "Cava Quintanilla", "tipo": "Tinto", "uva": "Blend", "popularidad": 80, "precio_aprox": 580, "perfil": "estructurado y mineral", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Sangre de Toro", "bodega": "Torres", "tipo": "Tinto", "uva": "Garnacha-Cariñena", "popularidad": 92, "precio_aprox": 290, "perfil": "cálido y especiado", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Yellow Tail Shiraz", "bodega": "Casella Family", "tipo": "Tinto", "uva": "Shiraz", "popularidad": 87, "precio_aprox": 240, "perfil": "suave y frutal", "cuerpo": "medio", "acidez": "baja", "taninos": "bajos", "dulzor": "semi-seco"},
+    {"nombre": "Adobe Guadalupe Kerubiel", "bodega": "Adobe Guad.", "tipo": "Tinto", "uva": "Blend G-S-M", "popularidad": 83, "precio_aprox": 1200, "perfil": "complejo y tánico", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Pedro Domecq XA", "bodega": "Domecq", "tipo": "Tinto", "uva": "Cabernet-Grenache", "popularidad": 93, "precio_aprox": 185, "perfil": "ligero y directo", "cuerpo": "ligero", "acidez": "media", "taninos": "bajos", "dulzor": "seco"},
+    {"nombre": "Ramón Bilbao Crianza", "bodega": "R. Bilbao", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 95, "precio_aprox": 460, "perfil": "clásico y equilibrado", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "19 Crimes Cali Red", "bodega": "19 Crimes", "tipo": "Tinto", "uva": "Blend", "popularidad": 91, "precio_aprox": 380, "perfil": "denso y dulce", "cuerpo": "robusto", "acidez": "baja", "taninos": "medios", "dulzor": "semi-seco"},
+    {"nombre": "Meinklang Prosa", "bodega": "Meinklang", "tipo": "Rosado E.", "uva": "Pinot Noir", "popularidad": 78, "precio_aprox": 550, "perfil": "natural y refrescante", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Roganto Nebbiolo", "bodega": "Roganto", "tipo": "Tinto", "uva": "Nebbiolo", "popularidad": 86, "precio_aprox": 1100, "perfil": "potente y seco", "cuerpo": "robusto", "acidez": "alta", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Santo Domingo Nebbiolo", "bodega": "Santo Domingo", "tipo": "Tinto", "uva": "Nebbiolo", "popularidad": 84, "precio_aprox": 640, "perfil": "intenso y persistente", "cuerpo": "robusto", "acidez": "alta", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Gran Ricardo", "bodega": "Monte Xanic", "tipo": "Tinto", "uva": "Blend Bordelés", "popularidad": 81, "precio_aprox": 1850, "perfil": "ícono y elegante", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Vinaltura Rosado", "bodega": "Vinaltura", "tipo": "Rosado", "uva": "Syrah", "popularidad": 85, "precio_aprox": 420, "perfil": "vibrante y floral", "cuerpo": "medio", "acidez": "media", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Tres Raíces Blanco", "bodega": "Tres Raíces", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 83, "precio_aprox": 510, "perfil": "mineral y fresco", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Cava Maciel Venus", "bodega": "Cava Maciel", "tipo": "Tinto", "uva": "Petite Sirah", "popularidad": 79, "precio_aprox": 690, "perfil": "profundo y oscuro", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "El Cielo Selene", "bodega": "El Cielo", "tipo": "Rosado", "uva": "Grenache-Syrah", "popularidad": 90, "precio_aprox": 590, "perfil": "delicado y frutal", "cuerpo": "ligero", "acidez": "media", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Faustino VII", "bodega": "Faustino", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 92, "precio_aprox": 320, "perfil": "sedoso y frutal", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Barefoot Merlot", "bodega": "Barefoot", "tipo": "Tinto", "uva": "Merlot", "popularidad": 94, "precio_aprox": 215, "perfil": "suave y versátil", "cuerpo": "medio", "acidez": "baja", "taninos": "bajos", "dulzor": "semi-seco"},
+    {"nombre": "Kim Crawford", "bodega": "Constellation", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 88, "precio_aprox": 750, "perfil": "tropical y ácido", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Espumante Puerta del Lobo", "bodega": "P. del Lobo", "tipo": "Espumoso", "uva": "Brut Nature", "popularidad": 82, "precio_aprox": 780, "perfil": "elegante y seco", "cuerpo": "medio", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Rutini Malbec", "bodega": "Rutini", "tipo": "Tinto", "uva": "Malbec", "popularidad": 87, "precio_aprox": 850, "perfil": "estructurado y distinguido", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Luigi Bosca", "bodega": "L. Bosca", "tipo": "Tinto", "uva": "Malbec", "popularidad": 91, "precio_aprox": 620, "perfil": "clásico malbec argentino", "cuerpo": "robusto", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Alamos Malbec", "bodega": "Alamos", "tipo": "Tinto", "uva": "Malbec", "popularidad": 93, "precio_aprox": 340, "perfil": "frutal y jugoso", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "J.P. Chenet", "bodega": "J.P. Chenet", "tipo": "Tinto", "uva": "Cabernet-Syrah", "popularidad": 95, "precio_aprox": 235, "perfil": "fácil de beber", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "semi-seco"},
+    {"nombre": "Sutter Home White Zin", "bodega": "Sutter Home", "tipo": "Rosado", "uva": "Zinfandel", "popularidad": 96, "precio_aprox": 220, "perfil": "dulce y ligero", "cuerpo": "ligero", "acidez": "media", "taninos": "nulos", "dulzor": "dulce"},
+    {"nombre": "Chateau Camou Flor de L.", "bodega": "Ch. Camou", "tipo": "Blanco", "uva": "Chardonnay", "popularidad": 81, "precio_aprox": 520, "perfil": "untuoso y floral", "cuerpo": "medio", "acidez": "media", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Único Luis Miguel", "bodega": "Ventisquero", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 85, "precio_aprox": 795, "perfil": "intenso y apasionado", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Megacero", "bodega": "Encinillas", "tipo": "Tinto", "uva": "Blend", "popularidad": 88, "precio_aprox": 1150, "perfil": "poderoso y persistente", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Piedra Negra Alta Colecc.", "bodega": "Lurton", "tipo": "Tinto", "uva": "Malbec", "popularidad": 86, "precio_aprox": 430, "perfil": "fresco y frutal", "cuerpo": "medio", "acidez": "alta", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Evolución Chardonnay", "bodega": "Casa Madero", "tipo": "Blanco", "uva": "Chardonnay", "popularidad": 89, "precio_aprox": 415, "perfil": "fresco con madera", "cuerpo": "medio", "acidez": "media", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Mogor Badán", "bodega": "Mogor Badán", "tipo": "Tinto", "uva": "Blend Burdeos", "popularidad": 80, "precio_aprox": 1250, "perfil": "tradicional y complejo", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Bruma Plan B Tinto", "bodega": "Bruma", "tipo": "Tinto", "uva": "Blend", "popularidad": 84, "precio_aprox": 590, "perfil": "moderno y directo", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Henri Lurton Chenin", "bodega": "Bodegas HL", "tipo": "Blanco", "uva": "Chenin Blanc", "popularidad": 82, "precio_aprox": 670, "perfil": "aromático y vivaz", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Solar Fortún Syrah", "bodega": "Solar Fortún", "tipo": "Tinto", "uva": "Syrah", "popularidad": 81, "precio_aprox": 745, "perfil": "especiado y ahumado", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Cuatro Soles", "bodega": "Valle Redondo", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 97, "precio_aprox": 125, "perfil": "ligero y afrutado", "cuerpo": "ligero", "acidez": "baja", "taninos": "bajos", "dulzor": "semi-seco"},
+    {"nombre": "Reservado Concha y Toro", "bodega": "Concha y Toro", "tipo": "Tinto", "uva": "Merlot", "popularidad": 98, "precio_aprox": 165, "perfil": "suave y confiable", "cuerpo": "medio", "acidez": "baja", "taninos": "bajos", "dulzor": "seco"},
+    {"nombre": "Veuve Clicquot", "bodega": "LVMH", "tipo": "Espumoso", "uva": "Champagne", "popularidad": 89, "precio_aprox": 1950, "perfil": "lujo y estructura", "cuerpo": "medio", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Moët & Chandon", "bodega": "LVMH", "tipo": "Espumoso", "uva": "Champagne", "popularidad": 92, "precio_aprox": 1780, "perfil": "clásico y brillante", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Prosecco Zonin", "bodega": "Zonin", "tipo": "Espumoso", "uva": "Glera", "popularidad": 94, "precio_aprox": 390, "perfil": "fresco y amigable", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Apothic Red", "bodega": "Apothic", "tipo": "Tinto", "uva": "Blend", "popularidad": 91, "precio_aprox": 450, "perfil": "intenso y chocolate", "cuerpo": "robusto", "acidez": "baja", "taninos": "medios", "dulzor": "semi-seco"},
+    {"nombre": "Menade Nosso", "bodega": "Menade", "tipo": "Blanco", "uva": "Verdejo", "popularidad": 77, "precio_aprox": 680, "perfil": "ecológico y puro", "cuerpo": "medio", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Flor de Pingus", "bodega": "Dominio de Pingus", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 75, "precio_aprox": 2900, "perfil": "exclusivo y potente", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Pruno", "bodega": "Finca Villacreces", "tipo": "Tinto", "uva": "Tempranillo", "popularidad": 88, "precio_aprox": 655, "perfil": "fruta negra y roble", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Montes Alpha", "bodega": "Montes", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 86, "precio_aprox": 695, "perfil": "robusto y clásico", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Errázuriz Max", "bodega": "Errázuriz", "tipo": "Tinto", "uva": "Carmenere", "popularidad": 83, "precio_aprox": 585, "perfil": "terroso y especiado", "cuerpo": "medio", "acidez": "baja", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Kaiken Ultra", "bodega": "Kaiken", "tipo": "Tinto", "uva": "Malbec", "popularidad": 85, "precio_aprox": 595, "perfil": "elegante y floral", "cuerpo": "robusto", "acidez": "media", "taninos": "altos", "dulzor": "seco"},
+    {"nombre": "Beringer Founders Est.", "bodega": "Beringer", "tipo": "Tinto", "uva": "Cabernet Sauvignon", "popularidad": 84, "precio_aprox": 485, "perfil": "clásico americano", "cuerpo": "medio", "acidez": "media", "taninos": "medios", "dulzor": "seco"},
+    {"nombre": "Oyster Bay", "bodega": "Oyster Bay", "tipo": "Blanco", "uva": "Sauvignon Blanc", "popularidad": 82, "precio_aprox": 650, "perfil": "refrescante y tropical", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"},
+    {"nombre": "Whispering Angel", "bodega": "Ch. d'Esclans", "tipo": "Rosado", "uva": "Blend Provenza", "popularidad": 87, "precio_aprox": 1100, "perfil": "fresco y seco", "cuerpo": "ligero", "acidez": "alta", "taninos": "nulos", "dulzor": "seco"}
 ]
 
 
 # ─────────────────────────────────────────────────────────
-# MOTOR DE INFERENCIA
-# Reglas basadas en lógica proposicional:
-#   Regla 1: maridaje ∋ comida ∧ precio ≤ presupuesto → recomendar
-#   Regla 1b: + filtro por tipo preferido si aplica
-#   Regla 2: fallback → vino más popular en presupuesto
-#   Regla 3: sin resultado → notificar
+# 2. MOTOR DE INFERENCIA (Scoring y Lógica Difusa)
 # ─────────────────────────────────────────────────────────
-def motor_inferencia(comida: str, presupuesto: float, tipo_pref: str = "") -> dict:
-    """
-    Aplica las reglas de inferencia y retorna un dict con:
-      - ganador: frame del vino recomendado (o None)
-      - regla_aplicada: número de regla usada
-      - es_fallback: True si se usó Regla 2
-    """
-    # Regla 1 — Match directo
-    candidatos = [
-        v for v in BASE_CONOCIMIENTO
-        if comida.lower() in v["maridaje_target"].lower()
-        and v["precio_aprox"] <= presupuesto
-    ]
+def evaluar_vinos(proteina, preparacion, clima, presupuesto):
+    resultados = []
+    
+    for vino in BASE_VINOS:
+        score = 0
+        justificacion = []
+        alerta_difusa = False
+        
+        # --- REGLA 1: Match de Proteína (Taninos y Cuerpo) ---
+        if proteina == "Carnes Rojas (Res, Borrego)":
+            if vino["taninos"] in ["altos", "medios"]: score += 30; justificacion.append("Sus taninos limpian la proteína de la carne.")
+            if vino["cuerpo"] == "robusto": score += 20; justificacion.append("Tiene el cuerpo suficiente para soportar el peso del platillo.")
+        
+        elif proteina == "Carnes Blancas (Pollo, Cerdo)":
+            if vino["cuerpo"] == "medio": score += 20; justificacion.append("Cuerpo medio ideal para no opacar la carne blanca.")
+            if vino["acidez"] in ["media", "alta"]: score += 15
+            
+        elif proteina == "Pescados y Mariscos":
+            if vino["taninos"] == "nulos": score += 30; justificacion.append("No tiene taninos, evitando el sabor metálico con los mariscos.")
+            if vino["acidez"] == "alta": score += 20; justificacion.append("Su alta acidez aporta frescura, actuando como un 'limón' en el platillo.")
+            
+        elif proteina == "Vegetariano / Pastas":
+            if vino["cuerpo"] in ["ligero", "medio"]: score += 20; justificacion.append("Cuerpo amigable que respeta los sabores vegetales.")
 
-    regla = 1
-    es_fallback = False
+        # --- REGLA 2: Match de Preparación (Grasa, Especias y Dulzor) ---
+        if preparacion == "A la parrilla / Asado":
+            if vino["cuerpo"] == "robusto": score += 15; justificacion.append("Hace sinergia con los tonos ahumados del asado.")
+        elif preparacion == "Picante / Especiado":
+            if vino["dulzor"] in ["dulce", "semi-seco"]: score += 25; justificacion.append("Su ligero dulzor ayuda a apagar el fuego del picante.")
+            if vino["tipo"] in ["Rosado", "Blanco"]: score += 10
+        elif preparacion == "Salsas cremosas / Quesos":
+            if vino["acidez"] == "alta": score += 25; justificacion.append("La acidez corta perfectamente la grasa de la crema/queso.")
+        elif preparacion == "Fresco / Crudo (Ceviches)":
+            if vino["tipo"] in ["Blanco", "Espumoso"]: score += 20; justificacion.append("Estilo refrescante perfecto para platillos crudos.")
 
-    # Regla 1b — Filtro por tipo
-    if candidatos and tipo_pref:
-        con_tipo = [v for v in candidatos if v["tipo"].lower() == tipo_pref.lower()]
-        if con_tipo:
-            candidatos = con_tipo
-            regla = "1b"
-
-    if candidatos:
-        ganador = max(candidatos, key=lambda v: v["popularidad"])
-        return {"ganador": ganador, "regla_aplicada": regla, "es_fallback": False}
-
-    # Regla 2 — Fallback
-    comodines = [v for v in BASE_CONOCIMIENTO if v["precio_aprox"] <= presupuesto]
-    if comodines:
-        ganador = max(comodines, key=lambda v: v["popularidad"])
-        return {"ganador": ganador, "regla_aplicada": 2, "es_fallback": True}
-
-    # Regla 3 — Sin resultado
-    return {"ganador": None, "regla_aplicada": 3, "es_fallback": False}
-
+        # --- REGLA 3: Contexto / Clima ---
+        if clima == "Día caluroso / Terraza":
+            if vino["tipo"] in ["Blanco", "Rosado", "Espumoso"]: score += 15; justificacion.append("Temperatura de servicio fría, ideal para el clima.")
+        elif clima == "Noche fría / Lluvia":
+            if vino["tipo"] == "Tinto": score += 15; justificacion.append("Vino tinto cálido, perfecto para una noche fría.")
+            
+        # --- REGLA 4: Presupuesto y Lógica Difusa ---
+        diferencia_precio = vino["precio_aprox"] - presupuesto
+        
+        if diferencia_precio <= 0:
+            score += 20 # Bonificación por estar en presupuesto
+            justificacion.append("Se ajusta perfectamente a tu presupuesto.")
+        elif 0 < diferencia_precio <= 100:
+            score -= 10 # Penalización leve (Lógica Difusa)
+            alerta_difusa = True
+            justificacion.append(f"Excede tu presupuesto por ${diferencia_precio} MXN, pero la compatibilidad lo vale.")
+        else:
+            score -= 500 # Descarte técnico por pasarse demasiado
+            
+        # --- REGLA 5: Desempate por Popularidad ---
+        score += (vino["popularidad"] / 10) # Suma de 7 a 9.9 puntos
+        
+        # Guardar si tiene un score aceptable
+        if score > 0:
+            resultados.append({
+                "vino": vino,
+                "score": round(score, 1),
+                "justificacion": list(set(justificacion)), # Eliminar duplicados
+                "alerta_difusa": alerta_difusa
+            })
+            
+    # Ordenar de mayor a menor score
+    resultados_ordenados = sorted(resultados, key=lambda x: x["score"], reverse=True)
+    return resultados_ordenados[:3] # Retornar el Top 3
 
 # ─────────────────────────────────────────────────────────
-# INTERFAZ DE USUARIO (terminal)
+# 3. INTERFAZ GRÁFICA (Frontend Minimalista)
 # ─────────────────────────────────────────────────────────
-def limpiar():
-    os.system("cls" if os.name == "nt" else "clear")
+st.set_page_config(page_title="Sommelier Virtual CDMX", page_icon="🍷", layout="centered")
 
+st.title("🍷 Sommelier Virtual CDMX")
+st.markdown("Sistema Experto de recomendaciones enológicas mediante inferencia heurística.")
+st.divider()
 
-def mostrar_barra(valor: int, maximo: int = 100, largo: int = 20) -> str:
-    llenos = int((valor / maximo) * largo)
-    return "█" * llenos + "░" * (largo - llenos)
+col1, col2 = st.columns(2)
 
+with col1:
+    st.subheader("1. Tu Platillo")
+    proteina = st.selectbox("Ingrediente Principal:", [
+        "Carnes Rojas (Res, Borrego)", 
+        "Carnes Blancas (Pollo, Cerdo)", 
+        "Pescados y Mariscos", 
+        "Vegetariano / Pastas"
+    ])
+    
+    preparacion = st.selectbox("Tipo de Preparación:", [
+        "A la parrilla / Asado", 
+        "Salsas cremosas / Quesos", 
+        "Picante / Especiado", 
+        "Fresco / Crudo (Ceviches)",
+        "Guisos / Estofados"
+    ])
 
-def mostrar_resultado(resultado: dict, comida: str):
-    print("\n" + "─" * 50)
-    ganador = resultado["ganador"]
+with col2:
+    st.subheader("2. Tu Contexto")
+    clima = st.selectbox("Momento o Clima:", [
+        "Día caluroso / Terraza", 
+        "Noche fría / Lluvia", 
+        "Cena interior casual"
+    ])
+    
+    presupuesto = st.slider("Presupuesto Máximo (MXN):", min_value=150, max_value=2500, value=500, step=50)
 
-    if ganador is None:
-        print("  Sin resultado: no hay vinos en ese rango de precio.")
-        print("  Intenta con un presupuesto mayor.")
-        return
+st.divider()
+submit = st.button("Recomendar Vinos 🍇", type="primary", use_container_width=True)
 
-    if resultado["es_fallback"]:
-        print(f"  No encontré maridaje exacto para '{comida}'.")
-        print("  Buscando el vino más popular en tu presupuesto...\n")
-
-    print(f"  🍷  {ganador['nombre']}")
-    print(f"      {ganador['bodega']}  ·  {ganador['tipo']}  ·  {ganador['uva']}")
-    print()
-    print(f"  Popularidad CDMX:  {mostrar_barra(ganador['popularidad'])} {ganador['popularidad']}%")
-    print(f"  Precio aprox.:     ${ganador['precio_aprox']} MXN")
-    print(f"  Perfil:            {ganador['perfil']}")
-    print()
-    print(f"  ¿Por qué? Su perfil combina excelente con {comida}.")
-    print(f"  Maridajes: {ganador['maridaje_target']}")
-    print(f"\n  [Regla aplicada: {resultado['regla_aplicada']}]")
-    print("─" * 50)
-
-
-def listar_vinos():
-    print("\n  Base de conocimiento — vinos disponibles:\n")
-    for i, v in enumerate(BASE_CONOCIMIENTO, 1):
-        print(f"  {i:2}. {v['nombre']:<35} {v['tipo']:<12} ${v['precio_aprox']:>4}  pop:{v['popularidad']}%")
-    print()
-
-
-def sistema_experto():
-    while True:
-        limpiar()
-        print("=" * 52)
-        print("   SISTEMA EXPERTO DE VINOS  —  CDMX 2026")
-        print("=" * 52)
-        print("\n  [1] Obtener recomendación")
-        print("  [2] Ver todos los vinos")
-        print("  [3] Salir")
-
-        opcion = input("\n  Elige una opción: ").strip()
-
-        if opcion == "3":
-            print("\n  ¡Salud! 🍷\n")
-            break
-
-        if opcion == "2":
-            listar_vinos()
-            input("  Presiona Enter para continuar...")
-            continue
-
-        if opcion != "1":
-            continue
-
-        # Captura de datos
-        comida = input("\n  ¿Qué vas a comer? (ej. Pasta, Mole, Tacos): ").strip()
-        if not comida:
-            continue
-
-        while True:
-            try:
-                presupuesto = float(input("  Presupuesto máximo (MXN): "))
-                break
-            except ValueError:
-                print("  Ingresa un número válido.")
-
-        tipo_pref = input(
-            "  Tipo preferido (Tinto/Blanco/Rosado/Espumoso o Enter para cualquiera): "
-        ).strip()
-
-        resultado = motor_inferencia(comida, presupuesto, tipo_pref)
-        mostrar_resultado(resultado, comida)
-
-        otra = input("\n  ¿Otra recomendación? (s/n): ").strip().lower()
-        if otra != "s":
-            print("\n  ¡Salud! 🍷\n")
-            break
-
-
-if __name__ == "__main__":
-    sistema_experto()
+# ─────────────────────────────────────────────────────────
+# 4. EJECUCIÓN Y RESULTADOS
+# ─────────────────────────────────────────────────────────
+if submit:
+    top_3 = evaluar_vinos(proteina, preparacion, clima, presupuesto)
+    
+    if not top_3:
+        st.error("No encontré vinos que se ajusten a ese nivel de presupuesto y exigencia. ¡Intenta subir el presupuesto!")
+    else:
+        st.success("¡He analizado la base de conocimiento! Aquí tienes mi Top 3:")
+        
+        for i, recomendacion in enumerate(top_3, 1):
+            vino = recomendacion["vino"]
+            
+            with st.container(border=True):
+                st.subheader(f"#{i} - {vino['nombre']}")
+                
+                # Alerta si se aplicó lógica difusa
+                if recomendacion["alerta_difusa"]:
+                    st.warning(f"⚠️ **Sobre Presupuesto:** Este vino cuesta **${vino['precio_aprox']} MXN**, superando tu límite por poco, pero su perfil es ideal para tu platillo.")
+                
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Precio", f"${vino['precio_aprox']} MXN")
+                c2.metric("Tipo", f"{vino['tipo']} ({vino['uva']})")
+                c3.metric("Match", f"{min(recomendacion['score'], 100)}%")
+                
+                st.markdown("**¿Por qué lo recomiendo? (Traza de Inferencia):**")
+                for just in recomendacion["justificacion"]:
+                    st.markdown(f"- *{just}*")
