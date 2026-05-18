@@ -84,9 +84,9 @@ BASE_VINOS = [
 
 
 # ─────────────────────────────────────────────────────────
-# 2. MOTOR DE INFERENCIA (Scoring y Lógica Difusa)
+# 2. MOTOR DE INFERENCIA (Scoring Avanzado)
 # ─────────────────────────────────────────────────────────
-def evaluar_vinos(proteina, preparacion, clima, presupuesto):
+def evaluar_vinos(proteina, preparacion, clima, presupuesto, nivel_conocimiento):
     resultados = []
     
     for vino in BASE_VINOS:
@@ -94,70 +94,78 @@ def evaluar_vinos(proteina, preparacion, clima, presupuesto):
         justificacion = []
         alerta_difusa = False
         
-        # --- REGLA 1: Match de Proteína (Taninos y Cuerpo) ---
+        # --- REGLA 1: Match de Proteína/Platillo ---
         if proteina == "Carnes Rojas (Res, Borrego)":
-            if vino["taninos"] in ["altos", "medios"]: score += 30; justificacion.append("Sus taninos limpian la proteína de la carne.")
-            if vino["cuerpo"] == "robusto": score += 20; justificacion.append("Tiene el cuerpo suficiente para soportar el peso del platillo.")
-        
+            if vino["taninos"] in ["altos", "medios"]: score += 35; justificacion.append("Tus cortes rojos requieren taninos presentes para limpiar la grasa del paladar.")
+            if vino["cuerpo"] == "robusto": score += 20; justificacion.append("El cuerpo robusto del vino se equipara al peso pesado de la carne roja.")
+            
         elif proteina == "Carnes Blancas (Pollo, Cerdo)":
-            if vino["cuerpo"] == "medio": score += 20; justificacion.append("Cuerpo medio ideal para no opacar la carne blanca.")
-            if vino["acidez"] in ["media", "alta"]: score += 15
+            if vino["cuerpo"] in ["ligero", "medio"]: score += 25; justificacion.append("Un vino de cuerpo medio respeta la delicadeza de la carne blanca sin opacarla.")
             
         elif proteina == "Pescados y Mariscos":
-            if vino["taninos"] == "nulos": score += 30; justificacion.append("No tiene taninos, evitando el sabor metálico con los mariscos.")
-            if vino["acidez"] == "alta": score += 20; justificacion.append("Su alta acidez aporta frescura, actuando como un 'limón' en el platillo.")
+            if vino["taninos"] == "nulos": score += 35; justificacion.append("La ausencia total de taninos previene el sabor metálico al chocar con el pescado.")
+            if vino["acidez"] == "alta": score += 20; justificacion.append("Alta acidez actúa como un toque de 'limón', aportando frescura al marisco.")
             
         elif proteina == "Vegetariano / Pastas":
-            if vino["cuerpo"] in ["ligero", "medio"]: score += 20; justificacion.append("Cuerpo amigable que respeta los sabores vegetales.")
-
-        # --- REGLA 2: Match de Preparación (Grasa, Especias y Dulzor) ---
-        if preparacion == "A la parrilla / Asado":
-            if vino["cuerpo"] == "robusto": score += 15; justificacion.append("Hace sinergia con los tonos ahumados del asado.")
-        elif preparacion == "Picante / Especiado":
-            if vino["dulzor"] in ["dulce", "semi-seco"]: score += 25; justificacion.append("Su ligero dulzor ayuda a apagar el fuego del picante.")
-            if vino["tipo"] in ["Rosado", "Blanco"]: score += 10
-        elif preparacion == "Salsas cremosas / Quesos":
-            if vino["acidez"] == "alta": score += 25; justificacion.append("La acidez corta perfectamente la grasa de la crema/queso.")
-        elif preparacion == "Fresco / Crudo (Ceviches)":
-            if vino["tipo"] in ["Blanco", "Espumoso"]: score += 20; justificacion.append("Estilo refrescante perfecto para platillos crudos.")
-
-        # --- REGLA 3: Contexto / Clima ---
-        if clima == "Día caluroso / Terraza":
-            if vino["tipo"] in ["Blanco", "Rosado", "Espumoso"]: score += 15; justificacion.append("Temperatura de servicio fría, ideal para el clima.")
-        elif clima == "Noche fría / Lluvia":
-            if vino["tipo"] == "Tinto": score += 15; justificacion.append("Vino tinto cálido, perfecto para una noche fría.")
+            if vino["cuerpo"] in ["ligero", "medio"]: score += 25; justificacion.append("Cuerpo amigable que permite que destaquen las hierbas y vegetales.")
             
-        # --- REGLA 4: Presupuesto y Lógica Difusa ---
+        elif proteina == "Postres / Dulces":
+            if vino["dulzor"] in ["dulce", "semi-seco"]: score += 40; justificacion.append("Regla de oro: El vino debe ser igual o más dulce que el postre para no saber amargo.")
+            if vino["tipo"] == "Espumoso": score += 15; justificacion.append("Las burbujas limpian el exceso de azúcar del paladar.")
+
+        # --- REGLA 2: Match de Preparación (Dinámico) ---
+        if preparacion == "A la parrilla / Asado":
+            if vino["cuerpo"] == "robusto" and vino["tipo"] == "Tinto": score += 20; justificacion.append("Afinidad directa con las notas ahumadas y carbón del asado.")
+        elif preparacion == "Salsas cremosas / Quesos fundidos":
+            if vino["acidez"] == "alta": score += 25; justificacion.append("La acidez corta perfectamente la sensación grasosa de la crema y el queso.")
+        elif preparacion == "Picante / Especiado":
+            if vino["dulzor"] in ["dulce", "semi-seco"]: score += 30; justificacion.append("El dulzor residual mitiga y apaga el fuego del picante.")
+        elif preparacion == "Salsa de Tomate / Pomodoro":
+            if vino["acidez"] in ["media", "alta"] and vino["tipo"] == "Tinto": score += 20; justificacion.append("La acidez del vino empata con la acidez natural del tomate.")
+
+        # --- REGLA 3: Nivel de Conocimiento (Ajuste de Experiencia) ---
+        if nivel_conocimiento == "Principiante (Vinos suaves)":
+            if vino["taninos"] == "altos" or vino["acidez"] == "alta":
+                score -= 15; justificacion.append("Nota: Tiene taninos o acidez notables, podría ser agresivo si no estás acostumbrado.")
+            if vino["dulzor"] in ["semi-seco", "dulce"]:
+                score += 15; justificacion.append("Perfil amigable y fácil de beber, ideal para adentrarse al mundo del vino.")
+        elif nivel_conocimiento == "Experto (Busco complejidad)":
+            if vino["cuerpo"] == "robusto" and vino["taninos"] == "altos":
+                score += 15; justificacion.append("Estructura compleja y profunda, ideal para paladares experimentados.")
+
+        # --- REGLA 4: Clima ---
+        if clima == "Día caluroso / Terraza":
+            if vino["tipo"] in ["Blanco", "Rosado", "Espumoso"]: score += 15; justificacion.append("Se sirve frío (6-10°C), ideal para refrescar en el calor.")
+            
+        # --- REGLA 5: Presupuesto Difuso ---
         diferencia_precio = vino["precio_aprox"] - presupuesto
         
         if diferencia_precio <= 0:
-            score += 20 # Bonificación por estar en presupuesto
-            justificacion.append("Se ajusta perfectamente a tu presupuesto.")
+            score += 20
         elif 0 < diferencia_precio <= 100:
-            score -= 10 # Penalización leve (Lógica Difusa)
+            score -= 15 # Lógica difusa: Penalización manejable
             alerta_difusa = True
-            justificacion.append(f"Excede tu presupuesto por ${diferencia_precio} MXN, pero la compatibilidad lo vale.")
         else:
-            score -= 500 # Descarte técnico por pasarse demasiado
+            score -= 1000 # Descarte absoluto
             
-        # --- REGLA 5: Desempate por Popularidad ---
-        score += (vino["popularidad"] / 10) # Suma de 7 a 9.9 puntos
+        # --- CALCULO FINAL DE MATCH (%) ---
+        # Asumimos que un puntaje "perfecto" ronda los 120 puntos base.
+        match_percent = min(int((score / 120) * 100), 100)
         
-        # Guardar si tiene un score aceptable
         if score > 0:
             resultados.append({
                 "vino": vino,
-                "score": round(score, 1),
-                "justificacion": list(set(justificacion)), # Eliminar duplicados
+                "puntaje_crudo": score,
+                "match": match_percent,
+                "justificacion": list(set(justificacion)),
                 "alerta_difusa": alerta_difusa
             })
             
-    # Ordenar de mayor a menor score
-    resultados_ordenados = sorted(resultados, key=lambda x: x["score"], reverse=True)
-    return resultados_ordenados[:3] # Retornar el Top 3
+    resultados_ordenados = sorted(resultados, key=lambda x: x["puntaje_crudo"], reverse=True)
+    return resultados_ordenados[:6] # Retornamos los mejores 6
 
 # ─────────────────────────────────────────────────────────
-# 3. INTERFAZ GRÁFICA (Frontend Minimalista)
+# 3. INTERFAZ GRÁFICA FRONTEND (Menús Dinámicos)
 # ─────────────────────────────────────────────────────────
 st.set_page_config(page_title="Sommelier Virtual CDMX", page_icon="🍷", layout="centered")
 
@@ -173,56 +181,80 @@ with col1:
         "Carnes Rojas (Res, Borrego)", 
         "Carnes Blancas (Pollo, Cerdo)", 
         "Pescados y Mariscos", 
-        "Vegetariano / Pastas"
+        "Vegetariano / Pastas",
+        "Postres / Dulces"
     ])
     
-    preparacion = st.selectbox("Tipo de Preparación:", [
-        "A la parrilla / Asado", 
-        "Salsas cremosas / Quesos", 
-        "Picante / Especiado", 
-        "Fresco / Crudo (Ceviches)",
-        "Guisos / Estofados"
-    ])
+    # === LÓGICA DE MENÚS DEPENDIENTES ===
+    opciones_preparacion = []
+    if proteina == "Carnes Rojas (Res, Borrego)":
+        opciones_preparacion = ["A la parrilla / Asado", "Guisos / Estofados", "Picante / Especiado"]
+    elif proteina == "Carnes Blancas (Pollo, Cerdo)":
+        opciones_preparacion = ["A la parrilla / Asado", "Salsas cremosas / Quesos fundidos", "Picante / Especiado"]
+    elif proteina == "Pescados y Mariscos":
+        opciones_preparacion = ["Fresco / Crudo (Ceviches)", "A la parrilla / Asado", "Salsas cremosas / Quesos fundidos"]
+    elif proteina == "Vegetariano / Pastas":
+        opciones_preparacion = ["Salsa de Tomate / Pomodoro", "Salsas cremosas / Quesos fundidos", "Fresco / Ensaladas"]
+    elif proteina == "Postres / Dulces":
+        opciones_preparacion = ["Base de Chocolate o Café", "Base de Frutas / Vainilla"]
+        
+    preparacion = st.selectbox("Tipo de Preparación:", opciones_preparacion)
 
 with col2:
     st.subheader("2. Tu Contexto")
-    clima = st.selectbox("Momento o Clima:", [
-        "Día caluroso / Terraza", 
-        "Noche fría / Lluvia", 
-        "Cena interior casual"
+    nivel = st.radio("Tu nivel de experiencia:", [
+        "Principiante (Vinos suaves)", 
+        "Intermedio (Conozco lo básico)", 
+        "Experto (Busco complejidad)"
     ])
     
-    presupuesto = st.slider("Presupuesto Máximo (MXN):", min_value=150, max_value=2500, value=500, step=50)
+    clima = st.selectbox("Momento o Clima:", ["Día caluroso / Terraza", "Noche fría / Lluvia", "Interior casual / Templado"])
+    presupuesto = st.slider("Presupuesto Máximo (MXN):", min_value=150, max_value=2500, value=600, step=50)
 
 st.divider()
-submit = st.button("Recomendar Vinos 🍇", type="primary", use_container_width=True)
+submit = st.button("Analizar Base de Conocimiento 🧠🍇", type="primary", use_container_width=True)
 
 # ─────────────────────────────────────────────────────────
-# 4. EJECUCIÓN Y RESULTADOS
+# 4. RENDERIZADO DE RESULTADOS
 # ─────────────────────────────────────────────────────────
-if submit:
-    top_3 = evaluar_vinos(proteina, preparacion, clima, presupuesto)
-    
-    if not top_3:
-        st.error("No encontré vinos que se ajusten a ese nivel de presupuesto y exigencia. ¡Intenta subir el presupuesto!")
-    else:
-        st.success("¡He analizado la base de conocimiento! Aquí tienes mi Top 3:")
+def mostrar_tarjeta_vino(recomendacion, indice):
+    vino = recomendacion["vino"]
+    with st.container(border=True):
+        st.subheader(f"Opción #{indice}: {vino['nombre']}")
         
-        for i, recomendacion in enumerate(top_3, 1):
-            vino = recomendacion["vino"]
+        # Barra de Aceptación/Match
+        match = recomendacion['match']
+        st.progress(match / 100, text=f"Nivel de Match Logrado: {match}%")
+        
+        if recomendacion["alerta_difusa"]:
+            st.warning(f"⚠️ **Atención:** Cuesta **${vino['precio_aprox']} MXN**, superando tu límite por un margen aceptable (menos de $100), pero su afinidad química lo justifica.")
+        
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Precio", f"${vino['precio_aprox']} MXN")
+        c2.metric("Tipo", f"{vino['tipo']}")
+        c3.metric("Uva Principal", f"{vino['uva']}")
+        
+        st.markdown("**¿Por qué seleccioné este vino?**")
+        for just in recomendacion["justificacion"]:
+            st.markdown(f"- *{just}*")
+
+# Lógica de despliegue al presionar botón
+if submit:
+    resultados = evaluar_vinos(proteina, preparacion, clima, presupuesto, nivel)
+    
+    if not resultados:
+        st.error("No encontré opciones viables. Intenta subir tu presupuesto.")
+    else:
+        st.success("¡Análisis completado! He calculado la compatibilidad técnica:")
+        
+        # Mostrar el TOP 3
+        top_3 = resultados[:3]
+        for i, rec in enumerate(top_3, 1):
+            mostrar_tarjeta_vino(rec, i)
             
-            with st.container(border=True):
-                st.subheader(f"#{i} - {vino['nombre']}")
-                
-                # Alerta si se aplicó lógica difusa
-                if recomendacion["alerta_difusa"]:
-                    st.warning(f"⚠️ **Sobre Presupuesto:** Este vino cuesta **${vino['precio_aprox']} MXN**, superando tu límite por poco, pero su perfil es ideal para tu platillo.")
-                
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Precio", f"${vino['precio_aprox']} MXN")
-                c2.metric("Tipo", f"{vino['tipo']} ({vino['uva']})")
-                c3.metric("Match", f"{min(recomendacion['score'], 100)}%")
-                
-                st.markdown("**¿Por qué lo recomiendo? (Traza de Inferencia):**")
-                for just in recomendacion["justificacion"]:
-                    st.markdown(f"- *{just}*")
+        # Opciones Alternativas (Paginación oculta)
+        alternativas = resultados[3:6]
+        if alternativas:
+            with st.expander("🔄 ¿No te convencen o no hay disponibilidad? Ver 3 opciones alternativas de respaldo"):
+                for i, rec in enumerate(alternativas, 4):
+                    mostrar_tarjeta_vino(rec, i)
