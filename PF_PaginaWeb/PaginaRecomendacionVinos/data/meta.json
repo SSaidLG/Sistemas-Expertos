@@ -1,0 +1,25 @@
+{
+  "tipos_vino": ["Tinto", "Blanco", "Rosado", "Espumoso", "Tinto Dulce"],
+  "ocasiones": [
+    {"id": "casual", "label": "Casual / Uso diario", "umbral_precio": 400, "bono": 0.10},
+    {"id": "moderada", "label": "Reunión / Cena especial", "umbral_precio": 800, "bono": 0.10},
+    {"id": "formal", "label": "Gala / Celebración premium", "umbral_precio": 500, "bono": 0.15}
+  ],
+  "climas": [
+    {"id": "fresco", "label": "Templado / Fresco"},
+    {"id": "calor", "label": "Mucho calor (vinos refrescantes)", "bono_tipos": ["Blanco", "Rosado", "Espumoso"], "bono_valor": 0.15}
+  ],
+  "proteinas": [
+    {"id": 1, "label": "Carnes rojas / Caza"},
+    {"id": 2, "label": "Cerdo / Aves"},
+    {"id": 3, "label": "Pescados / Mariscos"},
+    {"id": 4, "label": "Vegetales / Ninguna"}
+  ],
+  "escala_likert": {
+    "1": "Nada",
+    "2": "Poco",
+    "3": "Medio",
+    "4": "Bastante",
+    "5": "Mucho"
+  }
+}

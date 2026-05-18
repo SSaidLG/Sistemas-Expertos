@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  sommelier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sommelier-ai
+    ports:
+      - "8050:8050"
+    restart: unless-stopped
+    environment:
+      - PORT=8050
+    # En desarrollo puedes descomentar el volume para reflejar cambios en vivo:
+    # volumes:
+    #   - ./:/app

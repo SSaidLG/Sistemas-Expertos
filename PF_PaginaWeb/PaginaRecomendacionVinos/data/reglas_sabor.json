@@ -1,0 +1,54 @@
+{
+  "descripcion": "Matriz de afinidad de sabores elementales para el motor de inferencia difuso. Cada entrada define el perfil ideal de un vino (acidez, dulzor, tanino, cuerpo) para un atributo gustativo del platillo.",
+  "reglas": {
+    "picante": {
+      "acidez_ideal": 0.7,
+      "dulzor_ideal": 0.8,
+      "tanino_ideal": 0.1,
+      "cuerpo_ideal": 0.4,
+      "explicacion": "El picante busca contraste con dulzor y baja taninos."
+    },
+    "grasoso": {
+      "acidez_ideal": 0.8,
+      "dulzor_ideal": 0.2,
+      "tanino_ideal": 0.8,
+      "cuerpo_ideal": 0.8,
+      "explicacion": "La grasa se corta con acidez alta y taninos firmes."
+    },
+    "dulce": {
+      "acidez_ideal": 0.5,
+      "dulzor_ideal": 0.9,
+      "tanino_ideal": 0.1,
+      "cuerpo_ideal": 0.5,
+      "explicacion": "Lo dulce se acompaña con vinos igualmente dulces."
+    },
+    "acido": {
+      "acidez_ideal": 0.4,
+      "dulzor_ideal": 0.4,
+      "tanino_ideal": 0.3,
+      "cuerpo_ideal": 0.5,
+      "explicacion": "Lo ácido pide vinos balanceados sin acidez extra."
+    },
+    "ligero": {
+      "acidez_ideal": 0.7,
+      "dulzor_ideal": 0.3,
+      "tanino_ideal": 0.2,
+      "cuerpo_ideal": 0.3,
+      "explicacion": "Platos delicados requieren vinos de poco cuerpo."
+    },
+    "pesado": {
+      "acidez_ideal": 0.5,
+      "dulzor_ideal": 0.1,
+      "tanino_ideal": 0.8,
+      "cuerpo_ideal": 0.9,
+      "explicacion": "Platos intensos demandan vinos de gran estructura."
+    }
+  },
+  "pesos_score": {
+    "sensorial": 0.5,
+    "presupuesto": 0.2,
+    "maridaje_directo": 0.25,
+    "ocasion": 0.15,
+    "clima": 0.15
+  }
+}

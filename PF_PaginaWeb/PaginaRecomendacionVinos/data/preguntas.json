@@ -1,0 +1,103 @@
+{
+  "preguntas": [
+    {
+      "id": "nombre_platillo",
+      "tipo": "texto",
+      "titulo": "¿Qué platillo vas a consumir?",
+      "subtitulo": "Por ejemplo: tacos al pastor, mole poblano, ceviche…",
+      "placeholder": "Escribe el nombre del platillo"
+    },
+    {
+      "id": "presupuesto",
+      "tipo": "numero",
+      "titulo": "¿Cuál es tu presupuesto máximo?",
+      "subtitulo": "En pesos mexicanos (MXN)",
+      "min": 100,
+      "max": 5000,
+      "step": 50,
+      "default": 500
+    },
+    {
+      "id": "tipo_pref",
+      "tipo": "opcion",
+      "titulo": "¿Tienes un tipo de vino en mente?",
+      "subtitulo": "Si no estás seguro, déjalo en 'sin preferencia'",
+      "opciones": [
+        {"value": "", "label": "Sin preferencia"},
+        {"value": "Tinto", "label": "Tinto"},
+        {"value": "Blanco", "label": "Blanco"},
+        {"value": "Rosado", "label": "Rosado"},
+        {"value": "Espumoso", "label": "Espumoso"}
+      ]
+    },
+    {
+      "id": "picor",
+      "tipo": "escala",
+      "titulo": "¿Qué tan picante es el platillo?",
+      "subtitulo": "1 = Nada · 5 = Extremo",
+      "min": 1,
+      "max": 5,
+      "default": 3
+    },
+    {
+      "id": "grasa",
+      "tipo": "escala",
+      "titulo": "¿Qué tan graso o denso es?",
+      "subtitulo": "1 = Muy ligero · 5 = Muy graso / pesado",
+      "min": 1,
+      "max": 5,
+      "default": 3
+    },
+    {
+      "id": "dulce",
+      "tipo": "escala",
+      "titulo": "¿Tiene matices dulces o agridulces?",
+      "subtitulo": "1 = Nada dulce · 5 = Muy dulce",
+      "min": 1,
+      "max": 5,
+      "default": 1
+    },
+    {
+      "id": "intensidad",
+      "tipo": "escala",
+      "titulo": "¿Qué tan intenso es en condimentos / sabores?",
+      "subtitulo": "1 = Suave · 5 = Muy condimentado",
+      "min": 1,
+      "max": 5,
+      "default": 3
+    },
+    {
+      "id": "proteina",
+      "tipo": "opcion",
+      "titulo": "¿Cuál es la proteína predominante?",
+      "subtitulo": "Esto orienta la decisión hacia ciertos perfiles",
+      "opciones": [
+        {"value": 1, "label": "Carnes rojas / Caza"},
+        {"value": 2, "label": "Cerdo / Aves"},
+        {"value": 3, "label": "Pescados / Mariscos"},
+        {"value": 4, "label": "Vegetales / Ninguna"}
+      ]
+    },
+    {
+      "id": "ocasion",
+      "tipo": "opcion",
+      "titulo": "¿Cuál es la ocasión?",
+      "subtitulo": "El contexto define el rango de inversión esperado",
+      "opciones": [
+        {"value": "casual", "label": "Casual / Uso diario"},
+        {"value": "moderada", "label": "Reunión / Cena especial"},
+        {"value": "formal", "label": "Gala / Celebración premium"}
+      ]
+    },
+    {
+      "id": "clima",
+      "tipo": "opcion",
+      "titulo": "¿Cómo está el clima donde vas a disfrutarlo?",
+      "subtitulo": "Influye en la temperatura y frescura del vino",
+      "opciones": [
+        {"value": "fresco", "label": "Templado / Fresco"},
+        {"value": "calor", "label": "Mucho calor"}
+      ]
+    }
+  ]
+}
